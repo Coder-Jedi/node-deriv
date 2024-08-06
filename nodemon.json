@@ -1,0 +1,7 @@
+{
+    "watch": ["src"],
+    "ext": "js,ts",
+    "ignore": ["dist"],
+    "exec": "NODE_ENV=development npx tsx src/index.ts"
+  }
+  

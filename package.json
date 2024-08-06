@@ -1,0 +1,40 @@
+{
+  "name": "deriv",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon",
+    "prod": "NODE_ENV=production npx tsx src/index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@deriv/deriv-api": "^1.0.15",
+    "bluebird": "^3.7.2",
+    "cjson": "^0.5.0",
+    "convict": "^6.2.4",
+    "express": "^4.19.2",
+    "lodash": "^4.17.21",
+    "mongoose": "8.2.1",
+    "rxjs": "^7.8.1",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "winston": "^3.13.1",
+    "ws": "^8.17.1"
+  },
+  "devDependencies": {
+    "@types/bluebird": "^3.5.42",
+    "@types/express": "^4.17.21",
+    "@types/lodash": "^4.17.7",
+    "@types/node": "^20.14.10",
+    "@types/winston": "^2.4.4",
+    "nodemon": "^3.1.4",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.16.2",
+    "typescript": "^5.5.2"
+  },
+  "type": "module"
+}

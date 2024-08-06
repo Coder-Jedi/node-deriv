@@ -1,0 +1,54 @@
+{
+    "host" : {
+        "doc": "The IP address to bind.",
+        "format": "*",
+        "default": "127.0.0.1",
+        "env": "IP_ADDRESS"
+    },
+    "port" : {
+        "doc" : "The port to bind.",
+        "format": "port",
+        "default": 3000,
+        "env": "PORT"
+    },
+    "envConfig" : {
+        "default" : "config/appConfig.json"
+    },
+    "cluster":{
+        "default" : false,
+        "env" : "CLUSTER"
+    },
+    "cors":{
+        "default" : false,
+        "env" : "CORS"
+    },
+    "chatMessageRedisChannel": {
+        "default": "EngageChatSubscription",
+        "env": "CHAT_MSG_REDIS_CHANNEL"
+    },
+    "env": {
+        "doc": "The application environment.",
+        "format": ["production", "development", "test"],
+        "default": "development",
+        "env": "NODE_ENV"
+    },
+    "messageLimit":{
+        "MESSAGELIMITCAP": 4000,
+        "MODERATIONLIMITCAP": 415
+    },
+    "cookieSecret": {
+        "default": "chatter-jio-engage"
+    },
+    "disableRateLimit":{
+        "default" : false,
+        "env" : "DISABLE_RATE_LIMIT"
+    },
+    "nodeCacheClear":{
+        "default" : false,
+        "env" : "NODECACHECLEAR"
+    },
+    "nodeCacheMaxSize":{
+        "default" : 100000,
+        "env" : "NODECACHESIZE"
+    }
+}
