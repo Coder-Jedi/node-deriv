@@ -38,9 +38,10 @@ class BaseModel {
     }
 
     public create(rec: any, opts?: any): Bluebird<any> {
+        const data = Array.isArray(rec) ? rec : [rec];
         opts = opts || {};
         return this.getModel(this.modelName)
-            .then((model) => model.create([rec], opts));
+            .then((model) => model.create(data, opts));
     }
 
     public save(rec: any): Bluebird<any> {

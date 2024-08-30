@@ -5,12 +5,10 @@ import Bluebird from 'bluebird';
 import path from 'path';
 import fs from 'fs';
 import _ from 'lodash';
-import debug from 'debug';
-import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import logger from '../middlewares/logger.js';
     
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 
 class DBManager {
