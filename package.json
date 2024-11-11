@@ -6,6 +6,7 @@
   "scripts": {
     "start": "NODE_ENV=development npx tsx src/index.ts",
     "dev": "nodemon",
+    "main": "npx tsx src/main.ts",
     "prod": "NODE_ENV=production npx tsx src/index.ts"
   },
   "keywords": [],
@@ -22,6 +23,7 @@
     "rxjs": "^7.8.1",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
+    "technicalindicators": "^3.1.0",
     "winston": "^3.13.1",
     "ws": "^8.17.1"
   },

@@ -83,6 +83,13 @@ class BaseModel {
             .then((model) => model.countDocuments(matchCnd).exec())
             .catch(err => Bluebird.reject(err));
     }
+
+    public findOneAndUpdate(query: any, update: any, opts?: any): Bluebird<any> {
+        opts = opts || { new: true };
+        return this.getModel(this.modelName)
+            .then((model) => model.findOneAndUpdate(query, update, opts).exec())
+            .catch(err => Bluebird.reject(err));
+    }
 }
 
 export default BaseModel;

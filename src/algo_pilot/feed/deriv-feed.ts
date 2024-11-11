@@ -1,77 +1,23 @@
-// import { Timeframes_E, Symbols_E, AppEvents_E } from '../helpers/enum.js';
-// import { TimeSeries } from './time-series.js';
-// import { createBar } from './bar.js';
-// import { eventEmitterService, EventData, EventEmitterService } from '../services/event-emmitter-service.js';
-// import { Observable } from 'rxjs';
+// deriv feed class that extends the base feed class
+// it will implement the feed class methods to get the data from the deriv broker
 
-// export class DerivData {
+import { DerivBroker } from "../broker/deriv-broker.js";
+import { Bar } from "../constants/interfaces.js";
+import { BaseFeed } from "./base-feed.js";
 
-//     symbol = Symbols_E.DEFAULT;
-//     timeframe = Timeframes_E.DEFAULT;
-//     historical_count = 100;
-//     broker: any;
-//     private _data: TimeSeries;
-//     LiveBars = false;
-//     emitter: EventEmitterService;
+export class DerivFeed extends BaseFeed {
 
-//     constructor(broker, timeframe, symbol, args = {}) {
-//         this.symbol = symbol;
-//         this.timeframe = timeframe;
-//         this.historical_count = args['historical_count'] || 100;
-//         this.LiveBars = args['LiveBars'] || false;
-//         this.broker = broker;
-//         this._data = new TimeSeries(this.symbol, this.timeframe);
-//         this.emitter = eventEmitterService;
+    startFeed() {
+        const broker = this._store.broker as DerivBroker;
+        broker.getLiveCandles(this._symbol, this._timeframeInSeconds, 500).subscribe(data => {
+            if(!data.data.length) return;
 
-//         this.handleEvents();
-//     }
+            for(let i = 0; i < data.data.length; i++){
+                const bar = data.data[i] as Bar;
+                this._timeSeries.addBar(bar);
+            }
+            this.newCandleSubject$.next(data);
+        });
+    }
 
-//     handleEvents() {
-//         this.emitter.on(AppEvents_E.NEW_TICK, this.handleNewTick);
-//     }
-
-//     handleNewTick(eventData: EventData) {
-//         console.log('New Tick:', eventData.data);
-//     }
-
-//     startFeed() {
-//         console.log('feed started');
-//         this.addHistoricalCandles();
-//         // for (const bar of this._data.getBars()) {
-//         //     console.log(bar);
-//         // }
-//         // await this.getLiveFeed();
-//     }
-
-//     addHistoricalCandles() {
-//         console.log('addHistoricalCandles called');
-//         const klines = await this._store._broker.getHistoricalData(this.symbol, this.timeframe, this.historical_count);
-//         console.log('kline length', klines.length);
-//         for (const kline of klines) {
-//             this._data.addBar(createBar(kline.timestamp, kline.open, kline.high, kline.low, kline.close, kline.volume), false);
-//         }
-//     }
-
-//     async getLiveFeed() {
-//         console.log('startLiveFeed called');
-//         const obs = await this._store._broker.getLiveTicksSubscription(this.symbol);
-//         obs.subscribe(x => this.handleLiveTicksSubscription(x));
-//     }
-
-//     handleLiveTicksSubscription(res) {
-//         if (res && res.tick) {
-//             const obj = res.tick;
-//             const temp = {
-//                 timestamp: obj.epoch || 0,
-//                 open: obj.open || 0,
-//                 high: obj.high || 0,
-//                 low: obj.low || 0,
-//                 close: obj.quote || 0,
-//                 volume: obj.volume || 0
-//             };
-//             this._data.addBar(createBar(temp.timestamp, temp.open, temp.high, temp.low, temp.close, temp.volume), true);
-//         }
-//     }
-// }
-
-// export { DerivData };
+}
