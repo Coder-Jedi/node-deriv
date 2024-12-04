@@ -1,6 +1,8 @@
 import DBManager from "./dbManager.js";
 import AnchorModel from "./models/AnchorModel.js";
 import BaseModel from "./models/BaseModel.js";
+import BinarybotsModel from "./models/BinarybotsModel.js";
+import BinaryordersModel from "./models/BinaryordersModel.js";
 import CandlestickModel from "./models/CandlestickModel.js";
 
 const models :{
@@ -9,7 +11,9 @@ const models :{
 
 const modelMapping = {
     'anchors': AnchorModel,
-    'candlesticks': CandlestickModel
+    'candlesticks': CandlestickModel,
+    'binaryorders': BinaryordersModel,
+    'binarybots': BinarybotsModel
 };
 
 
@@ -26,7 +30,7 @@ export const initialize = (dbConfig: any): Promise<DBManager> => {
 export const initializeSpecificModels = (dbConfig: any, modelNames: string[]): Promise<DBManager> => {
     const dbMgr = new DBManager(dbConfig);
 
-    return dbMgr.init()
+    return dbMgr.init(modelNames)
         .then(() => {
             initiateModels(dbMgr, modelNames);
             return dbMgr;

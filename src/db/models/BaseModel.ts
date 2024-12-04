@@ -90,6 +90,8 @@ class BaseModel {
             .then((model) => model.findOneAndUpdate(query, update, opts).exec())
             .catch(err => Bluebird.reject(err));
     }
+
+    
 }
 
 export default BaseModel;

@@ -27,7 +27,7 @@ class DBManager {
         return connString(this.dbConfig);
     }
 
-    private async loadSchemas(): Promise<void> {
+    private async loadSchemas(modelNames?: string[]): Promise<void> {
         logger.info('loading schemas start', this.meta);
 
         const schemasPath = path.resolve(__dirname, './schemas');
@@ -36,6 +36,10 @@ class DBManager {
         for (const file of files) {
                 if (file.indexOf('.schema') === -1) {
                     return;
+                }
+                const modelName = file.split('.schema.ts')[0];
+                if (modelNames && !modelNames.includes(modelName)) {
+                    continue;
                 }
 
                 // Require and invoke the schema file
@@ -49,7 +53,7 @@ class DBManager {
             logger.info('loading schemas complete', this.meta);
     }
 
-    public init(): Bluebird<void> {
+    public init(modelNames?: string[]): Bluebird<void> {
         return new Bluebird<void>(async (resolve, reject) => {
             logger.info(this.name + ' : initialization in progress', this.meta);
             const dbURL = this.prepareDBURL();
@@ -66,7 +70,7 @@ class DBManager {
                 logger.info(this.name + ' : mongo connection successful', this.meta);
                 
                 try {
-                    await this.loadSchemas();
+                    await this.loadSchemas(modelNames);
 
                     resolve();
 

@@ -1,0 +1,251 @@
+## Project Documentation
+
+### Overview
+
+This project is a live trading bot system that integrates with brokers, strategies, and feeds to perform automated trading. The system is designed to be modular, allowing for different brokers, strategies, and symbols to be configured and used.
+
+### Folder Structure
+
+\`\`\`
+.gitignore
+.vscode/
+    launch.json
+env/
+    env.development.json
+    env.production.json
+logs/
+    combined.log
+    error.log
+nodemon.json
+package.json
+src/
+    algo_pilot/
+        broker/
+        constants/
+        feed/
+        genesis/
+        helpers/
+        services/
+        store/
+        strategy/
+    api_server.ts
+    configs/
+        config/
+        index.ts
+    db/
+        dbManager.ts
+        index.ts
+        models/
+        mongoConnectionString.ts
+        schemas/
+    index.ts
+    main.ts
+    middlewares/
+        logger.ts
+    routes/
+        anchor.route.ts
+        btbot.route.ts
+        ...
+    services/
+        ...
+    utils/
+tsconfig.json
+\`\`\`
+
+### Key Components
+
+#### 1. \`src/algo_pilot/\`
+
+##### a. \`broker/\`
+Contains broker-specific implementations.
+
+##### b. \`constants/\`
+Contains constants and interfaces used across the project.
+- **File:** \`constants.ts\`
+  - **Exports:** \`VALID_OPTIONS\`
+
+##### c. \`feed/\`
+Contains feed implementations for different brokers and strategies.
+- **File:** \`base-feed.ts\`
+  - **Class:** \`BaseFeed\`
+
+##### d. \`genesis/\`
+Contains the main classes for initializing and running the live trading bot.
+- **File:** \`live-trader.ts\`
+  - **Class:** \`LiveTrader\`
+
+##### e. \`helpers/\`
+Contains helper classes and functions.
+- **File:** \`order-log.ts\`
+  - **Class:** \`OrderLog\`
+
+##### f. \`services/\`
+Contains service implementations.
+
+##### g. \`store/\`
+Contains store implementations for different brokers.
+- **File:** \`deriv-store.ts\`
+  - **Class:** \`DerivStore\`
+
+##### h. \`strategy/\`
+Contains strategy implementations for different brokers.
+- **File:** \`base-strategy.ts\`
+  - **Class:** \`BaseStrategy\`
+- **File:** \`test-deriv-strategy.ts\`
+  - **Class:** \`TestDerivStrategy\`
+
+#### 2. \`src/configs/\`
+Contains configuration files.
+- **File:** \`index.ts\`
+  - **Exports:** Configuration settings.
+
+#### 3. \`src/db/\`
+Contains database-related files.
+- **File:** \`dbManager.ts\`
+  - **Exports:** Database manager functions.
+- **File:** \`index.ts\`
+  - **Exports:** Database initialization functions.
+- **File:** \`mongoConnectionString.ts\`
+  - **Exports:** MongoDB connection string.
+- **Folder:** \`models/\`
+  - Contains database models.
+- **Folder:** \`schemas/\`
+  - Contains database schemas.
+
+#### 4. \`src/middlewares/\`
+Contains middleware implementations.
+- **File:** \`logger.ts\`
+  - **Exports:** Logger middleware.
+
+#### 5. \`src/routes/\`
+Contains route definitions.
+- **File:** \`anchor.route.ts\`
+  - **Exports:** Anchor route.
+- **File:** \`btbot.route.ts\`
+  - **Exports:** BTBot route.
+
+#### 6. \`src/utils/\`
+Contains utility functions and classes.
+- **File:** \`job-servers/binary-trader-server.ts\`
+  - **Description:** Job server for binary trader.
+  - **Functions:**
+    - \`init()\`
+    - \`startOrderLogUpdate()\`
+
+#### 7. \`src/main.ts\`
+Main entry point for the application.
+- **Functions:**
+  - \`startDataJobServer(liveTraderInput: ILiveTraderInput)\`
+  - \`startLiveTrader(liveTraderInput: ILiveTraderInput)\`
+
+### Key Classes and Functions
+
+#### \`LiveTrader\` Class
+- **File:** \`live-trader.ts\`
+- **Description:** Main class for creating and managing a live trading bot.
+- **Constructor:**
+  \`\`\`typescript
+  constructor(liveTraderOptions: ILiveTraderInput)
+  \`\`\`
+- **Methods:**
+  - \`start()\`
+  - \`checkMandatoryFields(liveTraderOptions: ILiveTraderInput)\`
+  - \`checkValidOptions(liveTraderOptions: ILiveTraderInput)\`
+  - \`getOrderLogs()\`
+  - \`clearOrderLogs()\`
+  - \`printOrderLogs()\`
+
+#### \`BaseFeed\` Class
+- **File:** \`base-feed.ts\`
+- **Description:** Base class for all feeds.
+- **Constructor:**
+  \`\`\`typescript
+  constructor(store: BaseStore, symbol: string, timeframeInSeconds: number)
+  \`\`\`
+- **Methods:**
+  - \`startFeed()\`
+  - \`get timeSeries()\`
+  - \`get symbol()\`
+  - \`get timeframeInSeconds()\`
+  - \`get newCandleObs$()\`
+
+#### \`OrderLog\` Class
+- **File:** \`order-log.ts\`
+- **Description:** Maintains the log of orders placed by the strategy.
+- **Constructor:**
+  \`\`\`typescript
+  constructor(liveTraderInput: ILiveTraderInput)
+  \`\`\`
+- **Methods:**
+  - \`addOrder(order: IBinaryOrder)\`
+  - \`getOrders()\`
+  - \`clearOrders()\`
+
+### Configuration
+
+#### \`VALID_OPTIONS\`
+- **File:** \`constants.ts\`
+- **Description:** Contains valid options for stores, strategies, and symbols.
+- **Example:**
+  \`\`\`typescript
+  export const VALID_OPTIONS = {
+      stores: {
+          "deriv": {
+              class: DerivStore,
+              strategies: {
+                  "base": {
+                      class: BaseStrategy,
+                      feedClass: BaseFeed,
+                      symbols: [
+                          {symbol: "EURUSD", timeframe: "M1", timeframeInSeconds: 60, supportingSymbolAndTF: [{symbol: "EURUSD", timeframe: "M5", timeframeInSeconds: 300}]},
+                          // ...
+                      ]
+                  },
+                  "test_deriv": {
+                      class: TestDerivStrategy,
+                      feedClass: DerivFeed,
+                      symbols: [
+                          {symbol: "R_10", timeframe: "M1", timeframeInSeconds: 60, supportingSymbolAndTF: [{symbol: "R_10", timeframe: "M2", timeframeInSeconds: 120}, {symbol: "R_10", timeframe: "M3", timeframeInSeconds: 180}]},
+                          // ...
+                      ]
+                  }
+              },
+          }
+      }
+  }
+  \`\`\`
+
+### Running the Project
+
+#### Starting the Live Trader
+- **File:** \`main.ts\`
+- **Function:**
+  \`\`\`typescript
+  const liveTraderOptions : ILiveTraderInput = {
+      broker: "deriv",
+      strategy: "test_deriv",
+      symbol: "R_10",
+      timeframe: "M1",
+      params: {
+          appId: 51523,
+          authToken: "8tb79coZRZZEbmi"
+      }
+  };
+
+  startLiveTrader(liveTraderOptions);
+  \`\`\`
+
+#### Job Server
+- **File:** \`job-servers/binary-trader-server.ts\`
+- **Description:** Handles starting and stopping live trading based on messages from the main server.
+- **Functions:**
+  - \`init()\`
+  - \`startOrderLogUpdate()\`
+
+### Conclusion
+
+This documentation provides an overview of the project's structure, key components, and how to run the live trading bot. The modular design allows for easy integration of different brokers, strategies, and symbols, making it a flexible and powerful trading system.
+
+---
+
+This file will be updated as new features are added or older ones are refined.

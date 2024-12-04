@@ -4,6 +4,7 @@
 // it will have methods to add the order to the array(called by strategy), get all the orders (called by function adding orders to mongodb), clear the orders(called after adding current orders to mongodb)
 
 // export interface IBinaryOrderDoc {
+//     botId: string,         // the unique id of the bot for which the order is placed
 //     broker: string,
 //     strategy: string,
 //     symbol: string,
@@ -25,6 +26,7 @@ export class OrderLog {
     // if orderId already exists, update the order
     addOrder(order: IBinaryOrder){
         let orderDoc: IBinaryOrderDoc = {
+            botId: this.liveTraderInput.botId,
             broker: this.liveTraderInput.broker,
             strategy: this.liveTraderInput.strategy,
             symbol: order.symbol,

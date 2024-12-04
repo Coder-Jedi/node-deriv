@@ -4,20 +4,22 @@ import { IBinaryOrderDoc } from '../../algo_pilot/constants/interfaces.js';
 // Define the function to load the schema
 function loadSchema(db: Connection): Model<any> {
     const binaryordersSchema = new Schema<IBinaryOrderDoc>({
-        symbol: {
+        botId: {
             type: String,
             required: true,
             index: true // Indexing for faster queries on symbol
         },
+        symbol: {
+            type: String,
+            required: true,
+        },
         timeframe: {
             type: String,
             required: true,
-            index: true // Indexing for faster queries on timeframe
         },
         strategy: {
             type: String,
             required: true,
-            index: true // Indexing for faster queries on strategy
         },
         broker: {
             type: String,

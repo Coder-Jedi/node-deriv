@@ -13,55 +13,76 @@ import { IMessage } from "../constants/interfaces.js";
 
 
 // Map to track active live traders
-const liveTraders = new Map<string, LiveTrader>();
+let liveTrader: LiveTrader;
 
 const init = async () => {
     const dbConfig = configs.get('db');
     await db.initializeSpecificModels(dbConfig, ['binaryorders']);
 
+    await startOrderLogUpdate();
+
 }
 
-init().then(() => {
-    process.on('message', async (msg: IMessage) => {
-        if (msg.type === 'start' && msg?.data?.symbol && msg?.data?.timeframe && msg?.data?.broker && msg?.data?.strategy) {
-            // key is combination of broker, strategy, symbol and timeframe
-            const key = `${msg?.data?.broker}_${msg?.data?.strategy}_${msg?.data?.symbol}_${msg?.data?.timeframe}`;
-            if (liveTraders.has(key)) {
-                console.log(`Already trading for ${msg?.data?.broker}, ${msg?.data?.strategy}, ${msg?.data?.symbol}, ${msg?.data?.timeframe}`);
-                return;
-            }
-            const liveTrader = new LiveTrader({broker: msg?.data?.broker, strategy: msg?.data?.strategy, symbol: msg?.data?.symbol, timeframe: msg?.data?.timeframe});
-            liveTraders.set(key, liveTrader);
-            liveTrader.start();
+try {
+    init().then(() => {
+        process.on('message', async (msg: IMessage) => {
+            try {
+                if (msg.type === 'start' && msg?.data) {
+                    // initialize and start the live trader
+                    liveTrader = new LiveTrader(msg.data);
+                    liveTrader.start();
+                } else if (msg.type === 'stop') {
+                    // push the order logs to the db
+                    await logOrdersToDb();
 
-        }
-        else if (msg.type === 'stop' && msg?.data?.symbol && msg?.data?.timeframe && msg?.data?.broker && msg?.data?.strategy) {
-            const key = `${msg?.data?.broker}_${msg?.data?.strategy}_${msg?.data?.symbol}_${msg?.data?.timeframe}`;
-            if (liveTraders.has(key)) {
-                // liveTraders.get(key)?.stop();
-                liveTraders.delete(key);
+                    // exit the process
+                    process.exit(0);
+                }
+            } catch (error) {
+                console.error('Error handling message:', error);
+                if(process?.send){
+                    process?.send({ type: 'error', msg: (error as any)?.message || 'Unknown error' });
+                }
+                process.exit(1); // Exit with a non-zero code to indicate failure
             }
+        });
+    }).catch((error) => {
+        console.error('Failed to initialize:', error);
+        if(process?.send){
+            process?.send({ type: 'error', msg: "Failed to initialize: " + ((error as any)?.message || 'Unknown error') });
         }
-        else if (msg.type === 'status' && process.send) {
-            process.send({ type: 'status', subscriptions: Array.from(liveTraders.keys()) });
-        }
+        process.exit(1); // Exit with a non-zero code to indicate failure
     });
-});
+} catch (error) {
+    console.error('Unexpected error:', error);
+    if(process?.send){
+        process?.send({ type: 'error', msg: "Unexpected error: " + ((error as any)?.message || 'Unknown error') });
+    }
+    process.exit(1); // Exit with a non-zero code to indicate failure
+}
 
 // a function to add the orderLog of each live trader to the mongodb in the binaryorders collection at regular intervals
 // this function will be called at time of initialization of the job server
 const startOrderLogUpdate = async () => {
     const interval = 30000; // 30 seconds
     setInterval(async () => {
-        const orderLogs: any[] = [];
-        for (let [key, liveTrader] of liveTraders) {
-            orderLogs.push(...liveTrader.getOrderLogs());
-            liveTrader.clearOrderLogs();
-        }
-        const binaryorders = await db.getModelInstance("binaryorders");
-        // if new orderId is same as existing orderId, update the order, else create a new order
-        for (let orderLog of orderLogs) {
-            await binaryorders.findOneAndUpdate({orderId: orderLog.orderId}, orderLog, {upsert: true});
-        }
+        await logOrdersToDb();
     }, interval);
 } 
+
+// function to log orders
+const logOrdersToDb = async () => {
+    if(!liveTrader) {
+        return;
+    }
+    const orderLogs: any[] = [];
+    orderLogs.push(...liveTrader.getOrderLogs());
+    liveTrader.clearOrderLogs();
+
+    const binaryorders = db.getModelInstance("binaryorders");
+    // if new orderId is same as existing orderId, update the order, else create a new order
+    for (let orderLog of orderLogs) {
+        await binaryorders.findOneAndUpdate({orderId: orderLog.orderId}, orderLog, {upsert: true});
+    }
+
+}
