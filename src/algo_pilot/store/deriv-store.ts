@@ -5,7 +5,6 @@ import { DerivBroker } from '../broker/deriv-broker.js';
 import { BaseStore } from './base-store.js';
 import { OrderLog } from '../helpers/order-log.js';
 import { getTimeoutPromise } from '../../utils/helpers/helper-functions.js';
-import { from } from 'rxjs';
 
 export class DerivStore extends BaseStore {
 

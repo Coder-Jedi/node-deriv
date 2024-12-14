@@ -4,6 +4,9 @@ import { LiveTrader } from "./algo_pilot/genesis/live-trader.js";
 import { ChildProcess, fork } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { DerivStore } from "./algo_pilot/store/deriv-store.js";
+import { OrderLog } from "./algo_pilot/helpers/order-log.js";
+import fs from 'fs';
 
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -75,8 +78,31 @@ const liveTrader = new LiveTrader(liveTraderOptions);
 
 // run the liveTrader.start() async function using await in a process
 async function startLiveTrader(){
+    try{
+        const orderLog = new OrderLog(liveTraderOptions);
+        const store = new DerivStore(orderLog, liveTraderOptions.params);
+        await store.connect();
 
-    await liveTrader.start();
+        const payload = {
+            "statement": 1,
+            "description": 1,
+            "limit": 999,
+        }
+        // debugger
+        store.basicApi.send(payload).then((res:any) => {
+            console.log(res);
+            // write the res to a file: temp/deriv-statement.json
+            fs.writeFileSync('temp/deriv-statement.json', JSON.stringify(res));
+        })
+        .catch((err:any) => {
+            console.log(err);
+        });
+    }
+    catch(err){
+        console.error(err);
+    }
+
+    // await liveTrader.start();
 }
 
 startLiveTrader();

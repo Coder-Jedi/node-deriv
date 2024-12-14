@@ -1,0 +1,10 @@
+{
+    "appId":{
+        "default" : 51523,
+        "env" : "appId"
+    },
+    "authToken":{
+        "default" : "8tb79coZRZZEbmi",
+        "env" : "authToken"
+    }
+}

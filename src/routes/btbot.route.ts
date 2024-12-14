@@ -3,7 +3,7 @@
 // A new document will be created in the mongodb in the binarybots collection. The binarybots document can be created, deleted and fetched
 
 import { Router } from 'express';
-import { handleGetBotConfiguration, handleCreateBot, handleGetBotList, handleStartBot, handleGetRunningJobs, handleStopBot, handleGetBotDetails } from '../services/btbot.service.js';
+import { handleGetBotConfiguration, handleCreateBot, handleGetBotList, handleStartBot, handleGetRunningJobs, handleStopBot, handleGetBotDetails, handleGetOrders, handleStartPendingOrderUpdate } from '../services/btbot.service.js';
 
 const router = Router();
 
@@ -44,6 +44,18 @@ router.post('/btbot/stop', async (req, res) => {
 // route to get the detailed view of the bot and the orders placed by the bot
 router.get('/btbot/details', async (req, res) => {
     await handleGetBotDetails(req, res);
+});
+
+// route to get all the orders
+// if query parameter is passed for botId, then the orders placed by the bot will be returned
+router.get('/btbot/orders', async (req, res) => {
+    await handleGetOrders(req, res);
+});
+
+// route to start the service worker which will update the PENDING orders in the db to the latest status
+// this route can be called before starting any bot to update the orders in the db
+router.post('/btbot/orders/start-update', async (req, res) => {
+   await handleStartPendingOrderUpdate(req, res);
 });
 
 export default router;

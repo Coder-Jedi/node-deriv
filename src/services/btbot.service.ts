@@ -11,6 +11,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const jobServers = new Map<string, ChildProcess>();
 
+let orderUpdateJobServer : ChildProcess | null = null;
+
 export const handleGetBotConfiguration = async (req: express.Request, res: express.Response): Promise<void> => {
     return new Promise((resolve, reject) => {
         try {
@@ -230,6 +232,71 @@ export const handleGetBotDetails = async (req: express.Request, res: express.Res
             }
         } catch (error) {
             res.status(500).json({ message: 'Bot details not found', error: error, success: false });
+            return reject(error);
+        }
+    });
+}
+
+// function to get the list of orders
+// if the botId is passed in the query, then it will return the orders placed by the bot, else it will return all the orders
+// if the status query is passed and it is valid, i.e, PENDING, COMPLETED, FAILED, then it will return the orders with that status
+export const handleGetOrders = async (req: express.Request, res: express.Response): Promise<void> => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const query: any = {};
+            if (req.query.botId) {
+                query.botId = req.query.botId;
+            }
+            if (req.query.status && ['PENDING', 'COMPLETED', 'FAILED'].includes(req.query.status as string)) {
+                query['binaryOrder.status'] = req.query.status;
+            }
+
+            const binaryorders = db.getModelInstance("binaryorders");
+            const orders = await binaryorders.find(query);
+
+            res.status(200).json({ data: orders, success: true });
+            return resolve();
+        } catch (error) {
+            res.status(500).json({ message: 'Orders not found', error: error, success: false });
+            return reject(error);
+        }
+    });
+}
+
+// function to start the service worker which will update the PENDING orders in the db to the latest status
+// this route can be called before starting any bot to update the orders in the db
+export const handleStartPendingOrderUpdate = async (req: express.Request, res: express.Response): Promise<void> => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (orderUpdateJobServer) {
+                res.status(400).json({ message: 'Order update already running', success: false });
+                return resolve();
+            }
+            // start a new child process for the order update server
+            const workerPath = path.join(__dirname, '../utils/job-servers/bt-order-update-server.js');
+            orderUpdateJobServer = fork(workerPath);
+
+            orderUpdateJobServer?.stdout?.on('data', (data) => {
+                console.log(`Child stdout: ${data}`);
+            });
+            orderUpdateJobServer?.stderr?.on('data', (data) => {
+                console.error(`Child stderr: ${data}`);
+            });
+            orderUpdateJobServer?.on('message', (msg:any) => {
+                if(msg?.type === 'error'){
+                    console.error(`Child error: ${msg?.msg}`);
+                }
+            });
+            orderUpdateJobServer?.on('exit', async (code, signal) => {
+                console.log(`OrderUpdateServer exited with code ${code}, signal ${signal}`);
+                orderUpdateJobServer = null;
+            });
+
+
+            res.status(200).json({ message: 'Order update started', success: true });
+            return resolve();
+        } catch (error) {
+            res.status(500).json({ message: 'Order update failed', error: error, success: false });
             return reject(error);
         }
     });
