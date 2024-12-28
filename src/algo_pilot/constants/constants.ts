@@ -1,7 +1,6 @@
-import { BaseFeed } from "../feed/base-feed.js";
 import { DerivFeed } from "../feed/deriv-feed.js";
 import { DerivStore } from "../store/deriv-store.js";
-import { BaseStrategy } from "../strategy/base-strategy.js";
+import { ReversalMeanReversionStrategy } from "../strategy/reversal-mean-reversion.strategy.js";
 import { TestDerivStrategy } from "../strategy/test-deriv-strategy.js";
 
 // Interface definitions for the structure of VALID_OPTIONS
@@ -76,26 +75,31 @@ export const VALID_OPTIONS: IValidOptions = {
     "deriv": {
       class: DerivStore, // The class representing the broker store
       strategies: {
-        "base": {
-          class: BaseStrategy, // The class representing the strategy
-          feedClass: BaseFeed, // The feed class associated with the strategy
+        "test_deriv": {
+          class: TestDerivStrategy, // The class representing the test strategy
+          feedClass: DerivFeed, // The feed class associated with the test strategy
           symbols: [
             {
-              symbol: "EURUSD", // The symbol name
+              symbol: "R_10", // The symbol name
               timeframe: "M1", // The timeframe name
               timeframeInSeconds: 60, // The timeframe duration in seconds
               supportingSymbolAndTF: [
                 {
-                  symbol: "EURUSD", // The supporting symbol name
-                  timeframe: "M5", // The supporting timeframe name
-                  timeframeInSeconds: 300 // The supporting timeframe duration in seconds
+                  symbol: "R_10", // The supporting symbol name
+                  timeframe: "M2", // The supporting timeframe name
+                  timeframeInSeconds: 120 // The supporting timeframe duration in seconds
+                },
+                {
+                  symbol: "R_10", // The supporting symbol name
+                  timeframe: "M3", // The supporting timeframe name
+                  timeframeInSeconds: 180 // The supporting timeframe duration in seconds
                 }
               ]
             }
           ]
         },
-        "test_deriv": {
-          class: TestDerivStrategy, // The class representing the test strategy
+        "reversal_mean_reversion": {
+          class: ReversalMeanReversionStrategy, // The class representing the test strategy
           feedClass: DerivFeed, // The feed class associated with the test strategy
           symbols: [
             {

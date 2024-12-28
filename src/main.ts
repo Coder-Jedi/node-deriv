@@ -64,7 +64,7 @@ const startDataJobServer = (liveTraderInput: ILiveTraderInput) => {
 const liveTraderOptions : ILiveTraderInput = {
     botId: "test_bot",
     broker: "deriv",
-    strategy: "test_deriv",
+    strategy: "reversal_mean_reversion",
     symbol: "R_10",
     timeframe: "M1",
     params: {
@@ -77,32 +77,39 @@ const liveTraderOptions : ILiveTraderInput = {
 const liveTrader = new LiveTrader(liveTraderOptions);
 
 // run the liveTrader.start() async function using await in a process
-async function startLiveTrader(){
-    try{
-        const orderLog = new OrderLog(liveTraderOptions);
-        const store = new DerivStore(orderLog, liveTraderOptions.params);
-        await store.connect();
+// async function startLiveTrader(){
+//     try{
+//         const orderLog = new OrderLog(liveTraderOptions);
+//         const store = new DerivStore(orderLog, liveTraderOptions.params);
+//         await store.connect();
 
-        const payload = {
-            "statement": 1,
-            "description": 1,
-            "limit": 999,
-        }
-        // debugger
-        store.basicApi.send(payload).then((res:any) => {
-            console.log(res);
-            // write the res to a file: temp/deriv-statement.json
-            fs.writeFileSync('temp/deriv-statement.json', JSON.stringify(res));
-        })
-        .catch((err:any) => {
-            console.log(err);
-        });
-    }
-    catch(err){
-        console.error(err);
-    }
+//         const payload = {
+//             "statement": 1,
+//             "description": 1,
+//             "limit": 999,
+//         }
+//         // debugger
+//         store.basicApi.send(payload).then((res:any) => {
+//             console.log(res);
+//             // write the res to a file: temp/deriv-statement.json
+//             fs.writeFileSync('temp/deriv-statement.json', JSON.stringify(res));
+//         })
+//         .catch((err:any) => {
+//             console.log(err);
+//         });
+//     }
+//     catch(err){
+//         console.error(err);
+//     }
 
-    // await liveTrader.start();
+//     // await liveTrader.start();
+// }
+
+// startLiveTrader();
+
+function startLiveTraderDirect(liveTraderOptions){
+    const liveTrader = new LiveTrader(liveTraderOptions);
+    liveTrader.start();
 }
 
-startLiveTrader();
+startLiveTraderDirect(liveTraderOptions);

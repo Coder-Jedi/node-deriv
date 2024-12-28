@@ -12,50 +12,13 @@ import { ILiveTraderInput, ISymbolAndTF } from "../constants/interfaces.js";
 import { TestDerivStrategy } from "../strategy/test-deriv-strategy.js";
 import { DerivFeed } from "../feed/deriv-feed.js";
 import { OrderLog } from "../helpers/order-log.js";
+import { VALID_OPTIONS } from "../constants/constants.js";
 
 //define valid options: it will have valid stores, strategies and symbols, timeframes
 // it will also have classes associated with the stores and strategies
 // the values are nested. i.e. the store has associated strategies and the strategy has associated symbols/timeframe pairs ex of pair: {symbol: "EURUSD", timeframe: "M1", timeframeInSeconds: 60, supportingSymbolAndTF: [{symbol: "EURUSD", timeframe: "M5", timeframeInSeconds: 300}]} 
 // supportingSymbolAndTF is an array of symbols and timeframes that are also required for the strategy to work. So the strategy will be provided with the data of these symbols and timeframes as well
-const validOptions = {
-    stores: {
-        "deriv": {
-            class: DerivStore,
-            strategies: {
-                "base": {
-                    class: BaseStrategy,
-                    feedClass: BaseFeed,
-                    symbols: [
-                        {symbol: "EURUSD", timeframe: "M1", timeframeInSeconds: 60, supportingSymbolAndTF: [{symbol: "EURUSD", timeframe: "M5", timeframeInSeconds: 300}]},
-                        {symbol: "EURUSD", timeframe: "M5", timeframeInSeconds: 300, supportingSymbolAndTF: []},
-                        {symbol: "EURUSD", timeframe: "M15", timeframeInSeconds: 900, supportingSymbolAndTF: []},
-                        {symbol: "EURUSD", timeframe: "M30", timeframeInSeconds: 1800, supportingSymbolAndTF: []},
-                        {symbol: "EURUSD", timeframe: "H1", timeframeInSeconds: 3600, supportingSymbolAndTF: []},
-                        {symbol: "EURUSD", timeframe: "H4", timeframeInSeconds: 14400, supportingSymbolAndTF: []},
-                        {symbol: "EURUSD", timeframe: "D", timeframeInSeconds: 86400, supportingSymbolAndTF: []},
-                        {symbol: "EURUSD", timeframe: "W", timeframeInSeconds: 604800, supportingSymbolAndTF: []},
-                        {symbol: "EURUSD", timeframe: "M", timeframeInSeconds: 2592000, supportingSymbolAndTF: []},
-                    ]
-                },
-                "test_deriv": {
-                    class: TestDerivStrategy,
-                    feedClass: DerivFeed,
-                    symbols: [
-                        {symbol: "R_10", timeframe: "M1", timeframeInSeconds: 60, supportingSymbolAndTF: [{symbol: "R_10", timeframe: "M2", timeframeInSeconds: 120}, {symbol: "R_10", timeframe: "M3", timeframeInSeconds: 180}]},
-                        {symbol: "EURUSD", timeframe: "M5", timeframeInSeconds: 300, supportingSymbolAndTF: []},
-                        {symbol: "EURUSD", timeframe: "M15", timeframeInSeconds: 900, supportingSymbolAndTF: []},
-                        {symbol: "EURUSD", timeframe: "M30", timeframeInSeconds: 1800, supportingSymbolAndTF: []},
-                        {symbol: "EURUSD", timeframe: "H1", timeframeInSeconds: 3600, supportingSymbolAndTF: []},
-                        {symbol: "EURUSD", timeframe: "H4", timeframeInSeconds: 14400, supportingSymbolAndTF: []},
-                        {symbol: "EURUSD", timeframe: "D", timeframeInSeconds: 86400, supportingSymbolAndTF: []},
-                        {symbol: "EURUSD", timeframe: "W", timeframeInSeconds: 604800, supportingSymbolAndTF: []},
-                        {symbol: "EURUSD", timeframe: "M", timeframeInSeconds: 2592000, supportingSymbolAndTF: []},
-                    ]
-                }
-            },
-        }
-    }
-}
+const validOptions: any = VALID_OPTIONS;
 
 
 export class LiveTrader {

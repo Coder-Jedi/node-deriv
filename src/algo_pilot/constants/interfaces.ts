@@ -12,11 +12,11 @@ export interface ILiveTraderInput {
 // define interface for Bar representing the candle/tick data
 export interface Bar {
     timestamp: number,
-    open: number | null,
-    high: number | null,
-    low: number | null,
+    open: number,
+    high: number,
+    low: number,
     close: number,
-    volume: number | null
+    volume: number
 }
 
 //define interface for observable which will emit when the new candle/tick data is added in the TimeSeries maintained in the feed class
