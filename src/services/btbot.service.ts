@@ -26,6 +26,9 @@ export const handleGetBotConfiguration = async (req: express.Request, res: expre
     });
 }
 
+// function to get dynamic configuration for the bot
+// it will fetch the
+
 // function to add a new document to binarybots collection in mongodb. It will first check if the necessary fields are provided
 export const handleCreateBot = async (req: express.Request, res: express.Response): Promise<void> => {
     return new Promise(async (resolve, reject) => {
@@ -96,6 +99,13 @@ export const handleStartBot = async (req: express.Request, res: express.Response
                 const bot = await binarybots.findOne({ botId: botId });
 
                 if (bot) {
+                    // check if the bot is already running
+                    const key = `${botId}`;
+                    if (jobServers.has(key)) {
+                        res.status(400).json({ message: 'Bot already running', success: false });
+                        return resolve();
+                    }
+
                     // push the new runningLog entry to document and update it in db
                     const data = Object.assign({actionType: "manual"} ,req?.body?.data);
                     const runningLogEntry: IRunningLog = {

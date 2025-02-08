@@ -60,6 +60,8 @@ export class ReversalMeanReversionStrategy extends BaseStrategy {
         let overbought = false;
         let oversold = false;
 
+        logString = '';
+
         try {
             if (stochastic.length === 0 || rsi.length === 0) {
                 throw new Error('Stochastic or RSI data is empty');
@@ -84,6 +86,8 @@ export class ReversalMeanReversionStrategy extends BaseStrategy {
         } catch (error) {
             logger.error('Error in calculating Stochastic or RSI:', Object.assign({}, error, this.meta));
         }
+
+        logString += `t2Feed_stochastic: ${signalSnapshot['t2Feed_stochastic']} t2Feed_rsi: ${signalSnapshot['t2Feed_rsi']} t2Feed_overbought: ${signalSnapshot['t2Feed_overbought']} t2Feed_oversold: ${signalSnapshot['t2Feed_oversold']}`;
 
         // Calculate MACD and ADX on main timeframe
         const macdInput: any = {
@@ -134,6 +138,11 @@ export class ReversalMeanReversionStrategy extends BaseStrategy {
         } catch (error) {
             logger.error('Error in confirming reversal momentum and ADX strength:', Object.assign({}, error, this.meta));
         }
+        logString += ` t1Feed_macd: ${signalSnapshot['t1Feed_macd']} t1Feed_macd_signal: ${signalSnapshot['t1Feed_macd_signal']} t1Feed_adx: ${signalSnapshot['t1Feed_adx']} t1Feed_macd_reversal: ${signalSnapshot['t1Feed_macd_reversal']} t1Feed_strong_trend: ${signalSnapshot['t1Feed_strong_trend']}`;
+        logString += ` signal: ${signalSnapshot['signal']}`;
+        logger.info(logString, this.meta);
+
+        this.placeOrder('CALL', signalSnapshot);
     }
 
     placeOrder(type: string, signalSnapshot?: any) {
@@ -145,7 +154,12 @@ export class ReversalMeanReversionStrategy extends BaseStrategy {
             duration: 2,
             duration_unit: "m"
         };
+        let logCount = 0;
         (this._store.broker as DerivBroker).buyContract(contractInput, signalSnapshot|| {}).subscribe({ next: (data) => {
+                logCount++;
+                if(logCount > 1) {
+                    return;
+                }
                 logger.info("buy response: ", Object.assign({}, data, this.meta));
             },
             error: (err) => {

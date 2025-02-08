@@ -130,7 +130,7 @@ export const VALID_OPTIONS: IValidOptions = {
           desc: 'The application ID provided by the broker.' 
         },
         authToken: { 
-          type: 'string', 
+          type: 'text', 
           required: true, 
           title: 'Authentication Token', 
           desc: 'The authentication token provided by the broker.' 

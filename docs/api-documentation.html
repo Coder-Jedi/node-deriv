@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Routes Documentation for AlgoAmpify Binary Trading Bot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0 auto;
+            padding: 20px min(4.5vw, 30px) 50px;
+            max-width: 800px;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ddd;
+            overflow-x: auto;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        hr {
+            border: 0;
+            border-top: 1px solid #ccc;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+
+<h1>API Routes Documentation for AlgoAmpify Binary Trading Bot</h1>
+
+<h2>1. Bot Configuration</h2>
+
+<h3>1.1 Get Bot Configuration</h3>
+
+<ul>
+    <li><strong>Endpoint:</strong> <code>/btbot/configuration</code></li>
+    <li><strong>Method:</strong> GET</li>
+    <li><strong>Description:</strong> Fetches the valid configurations required to create a bot.</li>
+    <li><strong>Response:</strong></li>
+</ul>
+
+<pre><code>{
+    "configuration": {
+        "brokers": [
+            {
+                "name": "deriv",
+                "strategies": [
+                    {
+                        "name": "reversal_mean_reversion",
+                        "feedClass": "DerivFeed",
+                        "symbols": [
+                            {
+                                "symbol": "R_10",
+                                "timeframes": [
+                                    {
+                                        "timeframe": "M1",
+                                        "timeframeInSeconds": 60,
+                                        "supportingSymbolAndTF": [
+                                            {
+                                                "symbol": "R_10",
+                                                "timeframe": "M2",
+                                                "timeframeInSeconds": 120
+                                            },
+                                            {
+                                                "symbol": "R_10",
+                                                "timeframe": "M3",
+                                                "timeframeInSeconds": 180
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "additionalParams": {
+                    "appId": {
+                        "type": "number",
+                        "required": true,
+                        "title": "Application ID",
+                        "desc": "The application ID provided by the broker."
+                    },
+                    "authToken": {
+                        "type": "string",
+                        "required": true,
+                        "title": "Authentication Token",
+                        "desc": "The authentication token provided by the broker."
+                    }
+                }
+            }
+        ]
+    },
+    "success": true
+}</code></pre>
+
+<hr>
+
+<h2>2. Bot Management</h2>
+
+<h3>2.1 Create a New Bot</h3>
+
+<ul>
+    <li><strong>Endpoint:</strong> <code>/btbot/create</code></li>
+    <li><strong>Method:</strong> POST</li>
+    <li><strong>Description:</strong> Creates a new bot with the specified broker, strategy, symbol, timeframe, and additional parameters.</li>
+    <li><strong>Payload:</strong></li>
+</ul>
+
+<pre><code>{
+    "broker": "deriv",
+    "strategy": "reversal_mean_reversion",
+    "symbol": "R_10",
+    "timeframe": "M1",
+    "botName": "Reversal Mean Reversion Bot",
+    "params": {
+        "appId": "12345",
+        "authToken": "8pq25cosnZZEbTi"
+    }
+}</code></pre>
+
+<ul>
+    <li><strong>Response:</strong></li>
+</ul>
+
+<pre><code>{
+    "data": [
+        {
+            "symbol": "R_10",
+            "timeframe": "M1",
+            "strategy": "reversal_mean_reversion",
+            "broker": "deriv",
+            "botName": "Reversal Mean Reversion Bot",
+            "params": {
+                "appId": "51523",
+                "authToken": "8tb79coZRZZEbmi"
+            },
+            "_id": "6770d3895820bdad0d528694",
+            "botId": "7a129efc-2fa3-4143-b7e0-4015fcb4f1f0",
+            "runningLogs": [],
+            "created_at": "2024- 12-29T04:43:53.085Z",
+            "updated_at": "2024-12-29T04:43:53.085Z",
+            "__v": 0
+        }
+    ],
+    "success": true
+}</code></pre>
+
+<h3>2.2 Get Bot List</h3>
+
+<ul>
+    <li><strong>Endpoint:</strong> <code>/btbot/list</code></li>
+    <li><strong>Method:</strong> GET</li>
+    <li><strong>Description:</strong> Retrieves a list of all bots. It doesn't return the orders placed by the bot. If the query parameter <code>status=active</code> is provided, only active (running) bots are returned.</li>
+    <li><strong>Response:</strong></li>
+</ul>
+
+<pre><code>{
+    "data": [
+        {
+            "_id": "6770d3895820bdad0d528694",
+            "symbol": "R_10",
+            "timeframe": "M1",
+            "strategy": "reversal_mean_reversion",
+            "broker": "deriv",
+            "botName": "Reversal Mean Reversion Bot",
+            "params": {
+                "appId": "51523",
+                "authToken": "8tb79coZRZZEbmi"
+            },
+            "botId": "7a129efc-2fa3-4143-b7e0-4015fcb4f1f0",
+            "runningLogs": [],
+            "created_at": "2024-12-29T04:43:53.085Z",
+            "updated_at": "2024-12-29T04:43:53.085Z",
+            "__v": 0,
+            "status": "INACTIVE"
+        }
+    ],
+    "success": true
+}</code></pre>
+
+<h3>2.3 Start a Bot</h3>
+
+<ul>
+    <li><strong>Endpoint:</strong> <code>/btbot/start</code></li>
+    <li><strong>Method:</strong> POST</li>
+    <li><strong>Description:</strong> Starts live trading for the bot specified by botId. <strong>message:</strong> (optional) string to be recorded in start/stop operation logs <strong>data:</strong> (optional) object data to be recorded in start/stop operation logs</li>
+    <li><strong>Payload:</strong></li>
+</ul>
+
+<pre><code>{
+    "botId": "7a129efc-2fa3-4143-b7e0-4015fcb4f1f0",
+    "message": "Starting Bot for first time",
+    "data": {}
+}</code></pre>
+
+<ul>
+    <li><strong>Response:</strong></li>
+</ul>
+
+<pre><code>{
+    "message": "Live trader startup initiated. This does not mean the Live trader started successfully. Check the status of the bot to know if it is running",
+    "success": true
+}</code></pre>
+
+<h3>2.4 Stop a Bot</h3>
+
+<ul>
+    <li><strong>Endpoint:</strong> <code>/btbot/stop</code></li>
+    <li><strong>Method:</strong> POST</li>
+    <li><strong>Description:</strong> Stops live trading for the bot specified by botId. <strong>message:</strong> (optional) string to be recorded in start/stop operation logs <strong>data:</strong> (optional) object data to be recorded in start/stop operation logs</li>
+    <li><strong>Payload:</strong></li>
+</ul>
+
+<pre><code>{
+    "botId": "7a129efc-2fa3-4143-b7e0-4015fcb4f1f0",
+    "message": "Stopping Bot",
+    "data": {}
+}</code></pre>
+
+<ul>
+    <li><strong>Response:</strong></li>
+</ul>
+
+<pre><code>{
+    "message": "Live trader stopped",
+    "success": true
+}</code></pre>
+
+<hr>
+
+<h2>3. Bot Details</h2>
+
+<h3>3.1 Get Bot Details</h3>
+
+<ul>
+    <li><strong>Endpoint:</strong> <code>/btbot/details</code></li>
+    <li><strong>Method:</strong> GET</li>
+    <li><strong>Description:</strong> Retrieves detailed information about a specific bot and the orders it has placed. The query parameter <code>botId</code> is to be provided.</li>
+    <li><strong>Response:</strong></li>
+</ul>
+
+ <pre><code>{
+    "data": {
+        "bot": {
+            "_id": "6770d3895820bdad0d528694",
+            "symbol": "R_10",
+            "timeframe": "M1",
+            "strategy": "reversal_mean_reversion",
+            "broker": "deriv",
+            "botName": "Reversal Mean Reversion Bot",
+            "params": {
+                "appId": "51523",
+                "authToken": "8tb79coZRZZEbmi"
+            },
+            "botId": "7a129efc-2fa3-4143-b7e0-4015fcb4f1f0",
+            "runningLogs": [
+                {
+                    "type": "START",
+                    "timestamp": 1735448104288,
+                    "message": "Starting Bot for first time",
+                    "data": {
+                        "actionType": "manual"
+                    },
+                    "_id": "6770d6285820bdad0d528698"
+                },
+                {
+                    "type": "STOP",
+                    "timestamp": 1735458570084,
+                    "message": "Stopping Bot",
+                    "data": {
+                        "actionType": "manual"
+                    },
+                    "_id": "6770ff0ac049f5bcce00c429"
+                }
+            ],
+            "created_at": "2024-12-29T04:43:53.085Z",
+            "updated_at": "2024-12-29T08:28:59.917Z",
+            "__v": 9,
+            "status": "INACTIVE"
+        },
+        "orders": [
+            {
+                "_id": "6771086b62f70dcda3676a3b",
+                "orderId": "267714633628",
+                "__v": 0,
+                "binaryOrder": {
+                    "orderId": 267714633628,
+                    "symbol": "R_10",
+                    "amount": 1,
+                    "basis": "stake",
+                    "contract_type": "CALLE",
+                    "status": "COMPLETED",
+                    "result": "LOSS",
+                    "expectedPayout": 1.95,
+                    "actualPayout": null,
+                    "startTime": 1735460944,
+                    "duration": 2,
+                    "duration_unit": "m",
+                    "signalSnapshot": {
+                        "timestamp": 1735460940000,
+                        "t1Feed_key": "R_10_60",
+                        "t2Feed_key": "R_10_120",
+                        "t3Feed_key": "R_10_180",
+                        "t1Feed_close": 6347.884,
+                        "t2Feed_close": null,
+                        "t3Feed_close": null,
+                        "t1Feed_macd": -0.5243629161350327,
+                        "t1Feed_macd_signal": -0.398306785806536,
+                        "t1Feed_adx": 12.108801422969762,
+                        "t1Feed_macd_reversal": false,
+                        "t1Feed_strong_trend": false
+                    }
+                },
+                "botId": "7a129efc-2fa3-4143-b7e0-4015fcb4f1f0",
+                "broker": "deriv",
+                "created_at": "2024-12-29T08:29:31.716Z",
+                "strategy": "reversal_mean_reversion",
+                "symbol": "R_10",
+                "timeframe": "M1",
+                "updated_at": "2024-12-29T08:34:52.013Z"
+            }
+        ]
+    },
+    "success": true
+}</code></pre>
+
+<hr>
+
+<h2>4. Orders Management</h2>
+
+<h3>4.1 Get Orders</h3>
+
+<ul>
+    <li><strong>Endpoint:</strong> <code>/btbot/orders</code></li>
+    <li><strong>Method:</strong> GET</li>
+    <li><strong>Description:</strong> Retrieves a list of orders. If the query parameter <code>botId</code> is provided, only orders placed by the specified bot are returned. If the query parameter <code>status</code> is provided, only orders with specified status are returned. 'status' can be <code>PENDING</code>, <code>COMPLETED</code>, or <code>FAILED</code>.</li>
+    <li><strong>Response:</strong></li>
+</ul>
+
+<pre><code>{
+    "data": [
+        {
+            "_id": "6771086b62f70dcda3676a3b",
+            "orderId": "267714633628 ```json
+            "__v": 0,
+            "binaryOrder": {
+                "orderId": 267714633628,
+                "symbol": "R_10",
+                "amount": 1,
+                "basis": "stake",
+                "contract_type": "CALLE",
+                "status": "COMPLETED",
+                "result": "LOSS",
+                "expectedPayout": 1.95,
+                "actualPayout": null,
+                "startTime": 1735460944,
+                "duration": 2,
+                "duration_unit": "m",
+                "signalSnapshot": {
+                    "timestamp": 1735460940000,
+                    "t1Feed_key": "R_10_60",
+                    "t2Feed_key": "R_10_120",
+                    "t3Feed_key": "R_10_180",
+                    "t1Feed_close": 6347.884,
+                    "t2Feed_close": null,
+                    "t3Feed_close": null,
+                    "t1Feed_macd": -0.5243629161350327,
+                    "t1Feed_macd_signal": -0.398306785806536,
+                    "t1Feed_adx": 12.108801422969762,
+                    "t1Feed_macd_reversal": false,
+                    "t1Feed_strong_trend": false
+                }
+            },
+            "botId": "7a129efc-2fa3-4143-b7e0-4015fcb4f1f0",
+            "broker": "deriv",
+            "created_at": "2024-12-29T08:29:31.716Z",
+            "strategy": "reversal_mean_reversion",
+            "symbol": "R_10",
+            "timeframe": "M1",
+            "updated_at": "2024-12-29T08:34:52.013Z"
+        }
+    ],
+    "success": true
+}</code></pre>
+
+<h3>4.2 Start Pending Orders Update</h3>
+
+<ul>
+    <li><strong>Endpoint:</strong> <code>/btbot/orders/start-update</code></li>
+    <li><strong>Method:</strong> POST</li>
+    <li><strong>Description:</strong> Starts a service worker to update the status of pending orders in the database. This should be called before starting any bot to ensure the database has the latest order statuses.</li>
+    <li><strong>Response:</strong></li>
+</ul>
+
+<pre><code>{
+    "message": "Order update started",
+    "success": true
+}</code></pre>
+
+<br>
+<hr>
+<hr>
+
+</body>
+</html>

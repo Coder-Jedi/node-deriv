@@ -122,7 +122,7 @@ const updateOrdersInDb = async () => {
         const transaction = transactions.find((transaction) => String(transaction.contract_id) === String(plainOrder?.orderId) && transaction.action_type === 'sell');
         if(transaction){
             plainOrder.binaryOrder.status = 'COMPLETED';
-            plainOrder.binaryOrder.actualPayout = transaction.sell_price;
+            plainOrder.binaryOrder.actualPayout = transaction.amount;
             // update plainOrder.result : 'WIN' | 'LOSS' | 'TIE' | null;
             if(transaction.amount === 0){
                 plainOrder.binaryOrder.result = 'LOSS';
