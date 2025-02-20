@@ -150,6 +150,26 @@ export class DerivBroker {
                         }
                     });
                 } else {
+                    // add order to the order log with status as FAILED
+                    const order : IBinaryOrder = {
+                        orderId: "",
+                        symbol: input.symbol,
+                        amount: input.amount,
+                        basis: input.basis,
+                        contract_type: input.contract_type,
+                        status: 'FAILED',
+                        result: null,
+                        expectedPayout: 0,
+                        actualPayout: 0,
+                        startTime: 0,
+                        duration: input.duration,
+                        duration_unit: input.duration_unit,
+                        signalSnapshot: signalSnapshot,
+                        optionalMessage: "No proposal id found"
+                    };
+                    this.binaryOrders.push(order);
+                    this.store.orderLog.addOrder(order);
+                    
                     observer.error("No proposal id found");
                 }
             });

@@ -31,7 +31,10 @@ function loadSchema(db: Connection): Model<any> {
             type: String,
             required: true
         },
-        params: {
+        additionalParams: {
+            type: Object,
+        },
+        configurableParams: {
             type: Object,
         },
         // status: {

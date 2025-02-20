@@ -6,7 +6,8 @@ export interface ILiveTraderInput {
     strategy: string,
     symbol: string,
     timeframe: string,
-    params?: any
+    additionalParams?: any,
+    configurableParams?: any
 }
 
 // define interface for Bar representing the candle/tick data
@@ -31,9 +32,8 @@ export interface INewCandleObsData {
 // supportingSymbolAndTF is an array of symbols and timeframes that are also required for the strategy to work. So the strategy will be provided with the data of these symbols and timeframes as well
 export interface ISymbolAndTF {
     symbol: string,
-    timeframe: string,
-    timeframeInSeconds: number,
-    supportingSymbolAndTF: ISymbolAndTF[]
+    timeframe: number,
+    supportingSymbolAndTF: {symbol:string, timeframe:number}[]
 }
 
 // define interface for the buy contract input
@@ -61,6 +61,7 @@ export interface IBinaryOrder {
     duration: number;
     duration_unit: string;
     signalSnapshot: any;
+    optionalMessage?: string;               // can be used in case of failure
 }
 
 // define interface for the binary order document to be added in the mongodb
@@ -82,7 +83,8 @@ export interface IBinaryBotDoc {
     timeframe: string,
     botId: string,
     botName: string,
-    params: any,
+    additionalParams: any,
+    configurableParams: any,
     // status: 'ACTIVE' | 'INACTIVE',
     runningLogs: IRunningLog[],
 }

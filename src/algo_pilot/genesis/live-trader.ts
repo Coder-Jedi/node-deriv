@@ -35,60 +35,56 @@ export class LiveTrader {
     private feeds: {[key: string]: BaseFeed} = {};
 
     constructor(liveTraderOptions: ILiveTraderInput) {
-        this.checkMandatoryFields(liveTraderOptions);
-        this.checkValidOptions(liveTraderOptions);
         this.liveTraderOptions = liveTraderOptions;
         this.orderLog = new OrderLog(liveTraderOptions);
     }
 
-    //function to check if the mandatory fields are provided
-    checkMandatoryFields(liveTraderOptions: ILiveTraderInput) {
-        const fields = [
-            {id: "broker", title: "Broker"}, 
-            {id: "strategy", title: "Strategy"}, 
-            {id: "symbol", title: "Symbol"}, 
-            {id: "timeframe", title: "Timeframe"}
-        ];
-        fields.forEach(field => {
-            if(!liveTraderOptions[field.id]) {
-                throw new Error(`${field.title} is required`);
-            }
-        });
-    }
-
-    //function to check if the options are valid
-    checkValidOptions(liveTraderOptions: ILiveTraderInput) {
-        if(!validOptions.stores[liveTraderOptions.broker]) {
-            throw new Error(`Broker ${liveTraderOptions.broker} is not valid`);
-        }
-        if(!validOptions.stores[liveTraderOptions.broker].strategies[liveTraderOptions.strategy]) {
-            throw new Error(`Strategy ${liveTraderOptions.strategy} is not valid`);
-        }
-        if(!validOptions.stores[liveTraderOptions.broker].strategies[liveTraderOptions.strategy].symbols.find(symbol => symbol.symbol === liveTraderOptions.symbol && symbol.timeframe === liveTraderOptions.timeframe)) {
-            throw new Error(`Symbol ${liveTraderOptions.symbol} with timeframe ${liveTraderOptions.timeframe} is not valid`);
-        }
-    }
-
     //function to initialize the store, stategy, feed and start live trading for given symbol and timeframe
     async start() {
-        const storeName = this.liveTraderOptions.broker;
-        const strategyName = this.liveTraderOptions.strategy;
-        
-        this.store = new validOptions.stores[this.liveTraderOptions.broker].class(this.orderLog,this.liveTraderOptions.params);
+        const broker = VALID_OPTIONS.brokers.find(broker => broker.brokerName === this.liveTraderOptions.broker);
+        if(!broker){
+            throw new Error("Invalid broker");
+        }
+
+        this.store = new broker.storeClass(this.orderLog, this.liveTraderOptions.additionalParams) as BaseStore;
+
         await this.store.connect();
 
+        const strategy = broker.strategies.find(strategy => strategy.strategyName === this.liveTraderOptions.strategy);
+        if(!strategy){
+            throw new Error("Invalid strategy");
+        }
+
         //initialize the feeds
-        this.symbol = validOptions.stores[storeName].strategies[strategyName].symbols.find(symbol => symbol.symbol === this.liveTraderOptions.symbol && symbol.timeframe === this.liveTraderOptions.timeframe);
+        let symbolObj: ISymbolAndTF = {
+            symbol: this.liveTraderOptions.symbol,
+            timeframe: Number(this.liveTraderOptions.timeframe),
+            supportingSymbolAndTF: []
+        }
+        strategy.supportingFeedKeys.forEach(key => {
+            const param = strategy.configurableParams.find(param => param.name === key);
+            if(!param){
+                throw new Error("Invalid supporting feed key");
+            }
+            if(param.required && !this.liveTraderOptions.configurableParams[key]){
+                throw new Error("Required supporting feed key not provided");
+            }
+            symbolObj.supportingSymbolAndTF.push({
+                symbol: this.liveTraderOptions.symbol,
+                timeframe: Number(this.liveTraderOptions.configurableParams[key])
+            });
+        });
+        this.symbol = symbolObj;
             //main feed
-        const keyForMainFeed = `${this.symbol.symbol}_${this.symbol.timeframeInSeconds}`;
-        this.feeds[keyForMainFeed] = new validOptions.stores[storeName].strategies[strategyName].feedClass(this.store, this.symbol.symbol, this.symbol.timeframeInSeconds);
+        const keyForMainFeed = `${this.symbol.symbol}_${this.symbol.timeframe}`;
+        this.feeds[keyForMainFeed] = new strategy.feedClass(this.store, this.symbol.symbol, this.symbol.timeframe);
             //supporting feeds
         this.symbol.supportingSymbolAndTF.forEach(symbolAndTF => {
-            this.feeds[`${symbolAndTF.symbol}_${symbolAndTF.timeframeInSeconds}`] = new validOptions.stores[storeName].strategies[strategyName].feedClass(this.store, symbolAndTF.symbol, symbolAndTF.timeframeInSeconds);
+            this.feeds[`${symbolAndTF.symbol}_${symbolAndTF.timeframe}`] = new strategy.feedClass(this.store, symbolAndTF.symbol, symbolAndTF.timeframe);
         });
 
         // initialize the strategy with the feeds
-        this.strategy = new validOptions.stores[storeName].strategies[strategyName].class(this.store, this.symbol);
+        this.strategy = new strategy.strategyClass(this.store, this.symbol);
         this.strategy.setFeeds(this.feeds);
 
         // start all the feeds in the feeds object

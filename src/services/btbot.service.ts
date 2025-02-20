@@ -36,9 +36,9 @@ export const handleCreateBot = async (req: express.Request, res: express.Respons
             const bot = req.body;
             if (bot.broker && bot.strategy && bot.symbol && bot.timeframe && bot.botName) {
                 // validate the bot configuration parameters and return the error message if the parameters are invalid
-                const validateBotConfig = checkBotConfig(bot);
-                if (validateBotConfig) {
-                    res.status(400).json({ message: validateBotConfig, success: false });
+                const isInvalidBotConfig = checkBotConfig(bot);
+                if (isInvalidBotConfig) {
+                    res.status(400).json({ message: isInvalidBotConfig, success: false });
                     return resolve();
                 }
 
@@ -322,7 +322,8 @@ const createLiveTraderInputObject = (bot: any): ILiveTraderInput => {
             strategy: bot.strategy,
             symbol: bot.symbol,
             timeframe: bot.timeframe,
-            params: bot.params
+            additionalParams: bot.additionalParams,
+            configurableParams: bot.configurableParams,
         };
         return liveTraderInput;
     } else {

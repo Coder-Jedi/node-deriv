@@ -14,11 +14,13 @@ export class BaseStrategy {
     protected _store: BaseStore;
     protected _feeds: {[key: string]: BaseFeed} = {};
     protected _symbol: ISymbolAndTF;
+    protected _configurableParams: any;
 
     // get store instance at the time of strategy creation
-    constructor( store: BaseStore, symbol: ISymbolAndTF ) {
+    constructor( store: BaseStore, symbol: ISymbolAndTF, configurableParams?: any) {
         this._store = store;
         this._symbol = symbol;
+        this._configurableParams = configurableParams;
     }
 
     // function to set the feeds for the strategy and subscribe to the main feed
@@ -29,7 +31,7 @@ export class BaseStrategy {
 
     //function to subsribe to the new candle/tick data observable of the main feed
     subscribeToMainFeed() {
-        const keyForMainFeed = this._symbol.symbol + "_" + this._symbol.timeframeInSeconds;
+        const keyForMainFeed = this._symbol.symbol + "_" + this._symbol.timeframe;
         this._feeds[keyForMainFeed].newCandleObs$.subscribe(data => {
             // handle the case when main feed emits new candle/tick data, but supporting feeds are yet to receive the data of the same timestamp
             // the main feed is of lower timeframe than the supporting feeds, so the main feed data can be used to add the bars in the supporting feeds if they have not received the data yet

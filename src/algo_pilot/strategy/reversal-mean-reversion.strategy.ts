@@ -17,9 +17,9 @@ export class ReversalMeanReversionStrategy extends BaseStrategy {
 
     constructor(store: BaseStore, symbol: ISymbolAndTF) {
         super(store, symbol);
-        this.t1FeedKey = symbol.symbol + "_" + symbol.timeframeInSeconds;
-        this.t2FeedKey = symbol.supportingSymbolAndTF[0].symbol + "_" + symbol.supportingSymbolAndTF[0].timeframeInSeconds;
-        this.t3FeedKey = symbol.supportingSymbolAndTF[1].symbol + "_" + symbol.supportingSymbolAndTF[1].timeframeInSeconds;
+        this.t1FeedKey = symbol.symbol + "_" + symbol.timeframe;
+        this.t2FeedKey = symbol.supportingSymbolAndTF[0].symbol + "_" + symbol.supportingSymbolAndTF[0].timeframe;
+        this.t3FeedKey = symbol.supportingSymbolAndTF[1].symbol + "_" + symbol.supportingSymbolAndTF[1].timeframe;
     }
 
     next(data: INewCandleObsData) {
