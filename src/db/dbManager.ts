@@ -59,6 +59,7 @@ class DBManager {
             const dbURL = this.prepareDBURL();
             
             console.log("dbURL---", dbURL);
+            logger.info('dbURL---' + dbURL, this.meta);
 
             const options : mongoose.ConnectOptions = {
                 serverSelectionTimeoutMS: 1500,
